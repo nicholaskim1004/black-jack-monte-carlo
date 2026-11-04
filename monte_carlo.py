@@ -17,14 +17,26 @@ pt_values = {'2': 2,
              'K': 10, 
              'A': [1, 11]}
 
+options = ['hit', 'stand', 'split', 'double', 'surrender']
+
 deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 def simulate_deck(your_hand, dealer_hand):
     #remove your hand and dealers hand from deck
     temp_deck = deck 
     
-    temp_deck.remove(your_hand)
-    temp_deck.remove(dealer_hand)
+    for i in range(len(your_hand_value)):
+        #since your and dealer will start with 2 cards each
+        temp_deck.remove(your_hand[i])
+        temp_deck.remove(dealer_hand[i])
+    
+    #check for blackjack
+    your_hand_value = 0
+    dealer_hand_value = 0
+    
+    for i in range(len(your_hand_value)):
+        if your_hand[i][1] == 'A':
+            pt_values
     
     #shuffle deck 
     random.shuffle(temp_deck)
@@ -36,8 +48,23 @@ def simulate_deck(your_hand, dealer_hand):
     temp_deck.remove(new_card)
     temp_deck.remove(dealer_new_card)
     
-    your_hand_value = pt_values[your_hand[1]] + pt_values[new_card[1]]
-    dealer_hand_value = pt_values[dealer_hand[1]] + pt_values[dealer_new_card[1]]
+    if dealer_hand_value <= 16:
+        
+        
+        #dealer has to hit 
+        dealer_new_card = random.choice(temp_deck)
+        temp_deck.remove(dealer_new_card)
+    else:
+        if dealer_hand_value == 21:
+            return 0
+        elif dealer_hand_value > 21:
+            return 1
+        else:
+            if dealer_hand_value < your_hand_value:
+                return 1
+            else:
+                return 0
+            
     
     return your_hand_value, dealer_hand_value
 
@@ -51,5 +78,5 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     return wins / num_sims
 
 
-print(simulate_deck(['Spades','5'],['Diamonds','Q']))
+#print(simulate_deck(['Spades','5'],['Diamonds','Q']))
 
