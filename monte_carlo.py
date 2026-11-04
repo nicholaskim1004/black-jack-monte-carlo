@@ -26,7 +26,20 @@ def simulate_deck(your_hand, dealer_hand):
     temp_deck.remove(your_hand)
     temp_deck.remove(dealer_hand)
     
-    return temp_deck
+    #shuffle deck 
+    random.shuffle(temp_deck)
+    
+    new_card = random.choice(temp_deck)
+    dealer_new_card = random.choice(temp_deck)
+    
+    #remove those card from deck
+    temp_deck.remove(new_card)
+    temp_deck.remove(dealer_new_card)
+    
+    your_hand_value = pt_values[your_hand[1]] + pt_values[new_card[1]]
+    dealer_hand_value = pt_values[dealer_hand[1]] + pt_values[dealer_new_card[1]]
+    
+    return your_hand_value, dealer_hand_value
 
 
 def monte_carlo(num_sims, your_hand, dealer_hand):
@@ -37,5 +50,6 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     
     return wins / num_sims
 
-print(len(simulate_deck(['Spades','5'],['Hearts','K'])))
+
+print(simulate_deck(['Spades','5'],['Diamonds','Q']))
 
