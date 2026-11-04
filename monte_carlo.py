@@ -21,11 +21,12 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 def simulate_deck(your_hand, dealer_hand):
     #remove your hand and dealers hand from deck
+    temp_deck = deck 
     
-    fil_deck = deck.remove(your_hand)
-    fil_deck = fil_deck.remove(dealer_hand)
+    temp_deck.remove(your_hand)
+    temp_deck.remove(dealer_hand)
     
-    return fil_deck
+    return temp_deck
 
 
 def monte_carlo(num_sims, your_hand, dealer_hand):
@@ -36,4 +37,5 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     
     return wins / num_sims
 
-print(simulate_deck(['Spades','5'],['Hearts','K']))
+print(len(simulate_deck(['Spades','5'],['Hearts','K'])))
+
