@@ -17,8 +17,6 @@ pt_values = {'2': 2,
              'K': 10, 
              'A': [1, 11]}
 
-options = ['hit', 'stand', 'split', 'double', 'surrender']
-
 deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 
@@ -36,6 +34,9 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 #lets store both hands/how it plays out if you choose 1 or 11
 
 #look into if I can use a tree/backtracking for this
+
+#stores for the starting hand, and delear show card what is 
+outcome_mat = []
 
 def calculate_pt(hand, usable_ace = True):
     pt = 0
@@ -102,6 +103,10 @@ def simulate_deck(your_hand, dealer_hand):
         dealer_hand.append(dealer_new_card)
         
         dealer_hand_value = calculate_pt(dealer_hand)
+        
+        #storing for hit
+        
+        
     else:
         if dealer_hand_value > 21:
             return 1
@@ -126,6 +131,6 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     return wins / num_sims
 
 
-#print(simulate_deck(['Spades','5'],['Diamonds','Q']))
+print(simulate_deck([['Spades','5'],['Hearts','2']],[['Diamonds','Q'],['Diamonds','5']]))
 
-print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
+#print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
