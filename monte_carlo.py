@@ -37,16 +37,18 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 #look into if I can use a tree/backtracking for this
 
-def calculate_pt(hand):
+def calculate_pt(hand, usable_ace = True):
     pt = 0
 
     for card in hand:
-        print(pt)
         if card[1] == 'A':
-            if pt + pt_values[card[1]][1] <= 21:
-                pt += pt_values[card[1]][1]
+            if usable_ace == True:
+                if pt + pt_values[card[1]][1] <= 21:
+                    pt += pt_values[card[1]][1]
+                else:
+                    pt += pt_values[card[1]][0]
             else:
-                pt += pt_values[card[1]][0]
+                pt += 1
         else:
             pt += pt_values[card[1]]
 
@@ -62,38 +64,46 @@ def make_deck(your_hand, dealer_hand):
     
     return temp_deck
 
+#draws a random card and returns filtered deck
+def draw_card(deck):
+    
+    card = random.choice(deck)
+    
+    deck.remove(card)
+    
+    return card, deck
+
+
 def simulate_deck(your_hand, dealer_hand):
 
     fil_deck = make_deck(your_hand, dealer_hand)
     
     #check for blackjack
-    your_hand_value = 0
-    dealer_hand_value = 0
+    your_hand_value = calculate_pt(your_hand)
+    dealer_hand_value = calculate_pt(dealer_hand)
     
-    for i in range(len(your_hand_value)):
-        if your_hand[i][1] == 'A':
-            pt_values
+    if your_hand_value == 21:
+        return 1
+    elif dealer_hand_value == 21:
+        return -1
     
     #shuffle deck 
     random.shuffle(fil_deck)
     
-    new_card = random.choice(fil_deck)
-    dealer_new_card = random.choice(fil_deck)
+    new_card, fil_deck = draw_card(fil_deck)
+    dealer_new_card, fil_deck = draw_card(fil_deck)
     
-    #remove those card from deck
-    fil_deck.remove(new_card)
-    fil_deck.remove(dealer_new_card)
+    your_hand.append(new_card)
+    your_hand_value = calculate_pt(your_hand)
     
     if dealer_hand_value <= 16:
-        
-        
         #dealer has to hit 
-        dealer_new_card = random.choice(fil_deck)
-        fil_deck.remove(dealer_new_card)
+        dealer_new_card, fil_deck = draw_card(fil_deck)
+        dealer_hand.append(dealer_new_card)
+        
+        dealer_hand_value = calculate_pt(dealer_hand)
     else:
-        if dealer_hand_value == 21:
-            return 0
-        elif dealer_hand_value > 21:
+        if dealer_hand_value > 21:
             return 1
         else:
             if dealer_hand_value < your_hand_value:
@@ -117,7 +127,5 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
 
 
 #print(simulate_deck(['Spades','5'],['Diamonds','Q']))
-
-print(pt_values['A'][0])
 
 print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
