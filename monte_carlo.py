@@ -39,13 +39,16 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 def calculate_pt(hand):
     pt = 0
+
     for card in hand:
+        print(pt)
         if card[1] == 'A':
-            if 21 - pt <= 11:
+            if pt + pt_values[card[1]][1] <= 21:
                 pt += pt_values[card[1]][1]
             else:
                 pt += pt_values[card[1]][0]
-        pt += pt_values[card[1]]
+        else:
+            pt += pt_values[card[1]]
 
     return pt
 
@@ -115,4 +118,6 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
 
 #print(simulate_deck(['Spades','5'],['Diamonds','Q']))
 
-print(calculate_pt([['Spades','5'],['Diamonds','Q']]))
+print(pt_values['A'][0])
+
+print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
