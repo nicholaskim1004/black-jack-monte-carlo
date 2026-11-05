@@ -21,14 +21,42 @@ options = ['hit', 'stand', 'split', 'double', 'surrender']
 
 deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
-def simulate_deck(your_hand, dealer_hand):
-    #remove your hand and dealers hand from deck
+
+#how each round works:
+#draw 2 cards, dealer draws 2 cards (only know what 1st card is)
+#decide between the options in the list
+#calculate to see if the total points equals 21 or if you bust
+#if hit -> draw a new card and recalc.-> dealer flips card -> if total > 17 stand -> if < 16 hits-> compares points  
+#if stand -> delear flips card -> if total > 17 stands -> if < 16 stands -> compare points
+#if surrender -> you lose/give up on hand
+#if split -> play one hand 1st -> same decision tree as b/f -> after 1st hand finishes move to the 2nd hand 
+
+#points calc
+#only wrinkle is if Ace
+#lets store both hands/how it plays out if you choose 1 or 11
+
+#look into if I can use a tree/backtracking for this
+
+def calculate_pt(hand):
+    pt = 0
+    for card in hand:
+        pt += pt_values[card[1]]
+
+    return pt
+
+def make_deck(your_hand, dealer_hand):
     temp_deck = deck 
     
-    for i in range(len(your_hand_value)):
+    for i in range(len(your_hand)):
         #since your and dealer will start with 2 cards each
         temp_deck.remove(your_hand[i])
         temp_deck.remove(dealer_hand[i])
+    
+    return temp_deck
+
+def simulate_deck(your_hand, dealer_hand):
+
+    fil_deck = make_deck(your_hand, dealer_hand)
     
     #check for blackjack
     your_hand_value = 0
@@ -39,21 +67,21 @@ def simulate_deck(your_hand, dealer_hand):
             pt_values
     
     #shuffle deck 
-    random.shuffle(temp_deck)
+    random.shuffle(fil_deck)
     
-    new_card = random.choice(temp_deck)
-    dealer_new_card = random.choice(temp_deck)
+    new_card = random.choice(fil_deck)
+    dealer_new_card = random.choice(fil_deck)
     
     #remove those card from deck
-    temp_deck.remove(new_card)
-    temp_deck.remove(dealer_new_card)
+    fil_deck.remove(new_card)
+    fil_deck.remove(dealer_new_card)
     
     if dealer_hand_value <= 16:
         
         
         #dealer has to hit 
-        dealer_new_card = random.choice(temp_deck)
-        temp_deck.remove(dealer_new_card)
+        dealer_new_card = random.choice(fil_deck)
+        fil_deck.remove(dealer_new_card)
     else:
         if dealer_hand_value == 21:
             return 0
@@ -67,6 +95,8 @@ def simulate_deck(your_hand, dealer_hand):
             
     
     return your_hand_value, dealer_hand_value
+
+#run a monte carlo on each type of hand you could have
 
 
 def monte_carlo(num_sims, your_hand, dealer_hand):
