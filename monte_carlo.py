@@ -75,8 +75,8 @@ def draw_card(deck):
     return card, deck
 
 
-def simulate_deck(your_hand, dealer_hand):
-
+def simulate_deck(your_hand, dealer_hand, choice = 'hit'):
+    
     fil_deck = make_deck(your_hand, dealer_hand)
     
     #check for blackjack
@@ -95,29 +95,60 @@ def simulate_deck(your_hand, dealer_hand):
     dealer_new_card, fil_deck = draw_card(fil_deck)
     
     your_hand.append(new_card)
-    your_hand_value = calculate_pt(your_hand)
     
     if dealer_hand_value <= 16:
         #dealer has to hit 
-        dealer_new_card, fil_deck = draw_card(fil_deck)
         dealer_hand.append(dealer_new_card)
         
         dealer_hand_value = calculate_pt(dealer_hand)
         
         #storing for hit
+        if choice == 'hit':
+            your_hand.append(new_card)
+            your_hand_value = calculate_pt(your_hand)
+            
+            if dealer_hand_value > your_hand_value:
+                return -1
+            elif dealer_hand_value == your_hand_value:
+                return 0
+            else:
+                return 1
+            
+        #stand
+        else:
+            if dealer_hand_value > your_hand_value:
+                return -1
+            elif dealer_hand_value == your_hand_value:
+                return 0
+            else:
+                return 1
         
         
     else:
         if dealer_hand_value > 21:
             return 1
         else:
-            if dealer_hand_value < your_hand_value:
-                return 1
-            else:
-                return 0
+            #hit
+            if choice == 'hit':
+                your_hand.append(new_card)
+                your_hand_value = calculate_pt(your_hand)
+                
+                if dealer_hand_value > your_hand_value:
+                    return -1
+                elif dealer_hand_value == your_hand_value:
+                    return 0
+                else:
+                    return 1
             
+            #stand
+            else:
+                if dealer_hand_value < your_hand_value:
+                    return 1
+                elif dealer_hand_value == your_hand_value:
+                    return 0
+                else:
+                    return -1                
     
-    return your_hand_value, dealer_hand_value
 
 #run a monte carlo on each type of hand you could have
 
