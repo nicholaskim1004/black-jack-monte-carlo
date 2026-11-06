@@ -75,6 +75,20 @@ def draw_card(deck):
     return card, deck
 
 
+def draw_hand(deck):
+    
+    hand = []
+    
+    card, deck = draw_card(deck)
+    
+    hand.append(card)
+    
+    card, deck = draw_card(deck)
+    
+    hand.append(card)
+    
+    return hand
+
 def simulate_deck(your_hand, dealer_hand, choice = 'hit'):
     
     fil_deck = make_deck(your_hand, dealer_hand)
@@ -153,8 +167,13 @@ def simulate_deck(your_hand, dealer_hand, choice = 'hit'):
 #run a monte carlo on each type of hand you could have
 
 
-def monte_carlo(num_sims, your_hand, dealer_hand):
+def monte_carlo(num_sims):
     wins = 0 
+    
+    
+    
+    your_hand = draw_hand(deck)
+    dealer_hand = draw_hand(deck)
     
     for _ in range(num_sims):
         wins += simulate_deck(your_hand, dealer_hand)
