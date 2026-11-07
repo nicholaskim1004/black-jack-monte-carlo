@@ -38,11 +38,15 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 #stores for the starting hand, and delear show card what is 
 outcome_mat = []
 
-def calculate_pt(hand):
-    pt = sum(1 if rank == 'A' else pt_values[rank] for _, rank in hand)
-    has_ace = any(rank == 'A' for _, rank in hand)
-    if has_ace and pt + 10 <= 21:   # promote one ace to 11 if it doesn't bust
-        pt += 10
+def calculate_pt(hand, hard_total=True):
+    
+    if hard_total:
+        pt = sum(1 if rank == 'A' else pt_values[rank] for _, rank in hand)
+        has_ace = any(rank == 'A' for _, rank in hand)
+        if has_ace and pt + 10 <= 21:   # promote one ace to 11 if it doesn't bust
+            pt += 10
+    else:
+        pt = sum(1 if rank == 'A' else pt_values[rank] for _, rank in hand)
     return pt
 
 def make_deck(*hands):
@@ -52,7 +56,7 @@ def make_deck(*hands):
 def draw_hand(deck):
     return [deck.pop(random.randrange(len(deck))) for _ in range(2)]
 
-def simulate_deck(your_hand, dealer_hand, choice='hit'):
+def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
     # work on copies so the caller's hands are never modified
     your_hand = your_hand.copy()
     dealer_hand = dealer_hand.copy()
@@ -60,8 +64,8 @@ def simulate_deck(your_hand, dealer_hand, choice='hit'):
     fil_deck = make_deck(your_hand, dealer_hand)
     random.shuffle(fil_deck)
 
-    your_val = calculate_pt(your_hand)
-    dealer_val = calculate_pt(dealer_hand)
+    your_val = calculate_pt(your_hand, hard_total)
+    dealer_val = calculate_pt(dealer_hand, hard_total)
 
     # blackjack check
     if your_val == 21 and dealer_val == 21:
@@ -89,10 +93,10 @@ def simulate_deck(your_hand, dealer_hand, choice='hit'):
     else:
         return -1
 
-def monte_carlo(num_sims, your_hand, dealer_hand):
+def monte_carlo(num_sims, your_hand, dealer_hand, hard_total = True):
     results = {}
     for choice in ['hit', 'stand']:
-        total = sum(simulate_deck(your_hand, dealer_hand, choice) for _ in range(num_sims))
+        total = sum(simulate_deck(your_hand, dealer_hand, choice, hard_total) for _ in range(num_sims))
         results[choice] = total / num_sims
 
     return {
@@ -104,6 +108,8 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     
 starting_hand_values = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]   
 dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
+
+
 
 temp = deck.copy()
 
