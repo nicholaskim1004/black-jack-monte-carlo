@@ -38,155 +38,75 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 #stores for the starting hand, and delear show card what is 
 outcome_mat = []
 
-def calculate_pt(hand, usable_ace = True):
-    pt = 0
-
-    for card in hand:
-        if card[1] == 'A':
-            if usable_ace == True:
-                if pt + pt_values[card[1]][1] <= 21:
-                    pt += pt_values[card[1]][1]
-                else:
-                    pt += pt_values[card[1]][0]
-            else:
-                pt += 1
-        else:
-            pt += pt_values[card[1]]
-
+def calculate_pt(hand):
+    pt = sum(1 if rank == 'A' else pt_values[rank] for _, rank in hand)
+    has_ace = any(rank == 'A' for _, rank in hand)
+    if has_ace and pt + 10 <= 21:   # promote one ace to 11 if it doesn't bust
+        pt += 10
     return pt
 
-def make_deck(your_hand, dealer_hand):
-    temp_deck = deck 
-    
-    for i in range(len(your_hand)):
-        #since your and dealer will start with 2 cards each
-        temp_deck.remove(your_hand[i])
-        temp_deck.remove(dealer_hand[i])
-    
-    return temp_deck
-
-#draws a random card and returns filtered deck
-def draw_card(deck):
-    
-    card = random.choice(deck)
-    
-    deck.remove(card)
-    
-    return card, deck
-
+def make_deck(*hands):
+    used = [card for hand in hands for card in hand]
+    return [card for card in deck if card not in used]
 
 def draw_hand(deck):
-    
-    hand = []
-    
-    card, deck = draw_card(deck)
-    
-    hand.append(card)
-    
-    card, deck = draw_card(deck)
-    
-    hand.append(card)
-    
-    return hand
+    return [deck.pop(random.randrange(len(deck))) for _ in range(2)]
 
-def simulate_deck(your_hand, dealer_hand, choice = 'hit'):
-    
+def simulate_deck(your_hand, dealer_hand, choice='hit'):
+    # work on copies so the caller's hands are never modified
+    your_hand = your_hand.copy()
+    dealer_hand = dealer_hand.copy()
+
     fil_deck = make_deck(your_hand, dealer_hand)
-    
-    #check for blackjack
-    your_hand_value = calculate_pt(your_hand)
-    dealer_hand_value = calculate_pt(dealer_hand)
-    
-    if your_hand_value == 21:
-        return 1
-    elif dealer_hand_value == 21:
-        return -1
-    
-    #shuffle deck 
     random.shuffle(fil_deck)
-    
-    new_card, fil_deck = draw_card(fil_deck)
-    dealer_new_card, fil_deck = draw_card(fil_deck)
-    
-    your_hand.append(new_card)
-    
-    if dealer_hand_value <= 16:
-        #dealer has to hit 
-        dealer_hand.append(dealer_new_card)
-        
-        dealer_hand_value = calculate_pt(dealer_hand)
-        
-        #storing for hit
-        if choice == 'hit':
-            your_hand.append(new_card)
-            your_hand_value = calculate_pt(your_hand)
-            
-            if dealer_hand_value > your_hand_value:
-                return -1
-            elif dealer_hand_value == your_hand_value:
-                return 0
-            else:
-                return 1
-            
-        #stand
-        else:
-            if dealer_hand_value > your_hand_value:
-                return -1
-            elif dealer_hand_value == your_hand_value:
-                return 0
-            else:
-                return 1
-        
-        
+
+    your_val = calculate_pt(your_hand)
+    dealer_val = calculate_pt(dealer_hand)
+
+    # blackjack check
+    if your_val == 21 and dealer_val == 21:
+        return 0
+    if your_val == 21:
+        return 1
+    if dealer_val == 21:
+        return -1
+
+    if choice == 'hit':
+        your_hand.append(fil_deck.pop())
+        your_val = calculate_pt(your_hand)
+        if your_val > 21:
+            return -1
+
+    # dealer draws until 17+
+    while calculate_pt(dealer_hand) < 17:
+        dealer_hand.append(fil_deck.pop())
+    dealer_val = calculate_pt(dealer_hand)
+
+    if dealer_val > 21 or your_val > dealer_val:
+        return 1
+    elif your_val == dealer_val:
+        return 0
     else:
-        if dealer_hand_value > 21:
-            return 1
-        else:
-            #hit
-            if choice == 'hit':
-                your_hand.append(new_card)
-                your_hand_value = calculate_pt(your_hand)
-                
-                if dealer_hand_value > your_hand_value:
-                    return -1
-                elif dealer_hand_value == your_hand_value:
-                    return 0
-                else:
-                    return 1
-            
-            #stand
-            else:
-                if dealer_hand_value < your_hand_value:
-                    return 1
-                elif dealer_hand_value == your_hand_value:
-                    return 0
-                else:
-                    return -1                
-    
-
-#run a monte carlo on each type of hand you could have
-
+        return -1
 
 def monte_carlo(num_sims, your_hand, dealer_hand):
-    
-    outcome_mat = []
-
-    your_hand_pts = calculate_pt(your_hand)
-    delear_show_pt = pt_values[dealer_hand[0][1]]
-    
+    results = {}
     for choice in ['hit', 'stand']:
-        wins = 0
-        for _ in range(num_sims):
-            wins += simulate_deck(your_hand, dealer_hand, choice=choice)
-        outcome_mat.append(wins/num_sims)
-    
-    sim_result = {'hand_value': your_hand_pts, 'dealer_show_value': delear_show_pt, 'hit_win%': outcome_mat[0], 'stand_win%': outcome_mat[1]}
-    
-    return sim_result
+        total = sum(simulate_deck(your_hand, dealer_hand, choice) for _ in range(num_sims))
+        results[choice] = total / num_sims
 
-your_hand = draw_hand(deck)
-dealer_hand = draw_hand(deck)
+    return {
+        'hand_value': calculate_pt(your_hand),
+        'dealer_show_value': calculate_pt([dealer_hand[0]]),
+        'hit_ev': results['hit'],
+        'stand_ev': results['stand'],
+    }
 
-print(monte_carlo(10, your_hand, dealer_hand))
+temp = deck.copy()
+
+your_hand = draw_hand(temp)
+dealer_hand = draw_hand(temp)
+
+print(monte_carlo(100000, your_hand, dealer_hand))
 
 #print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
