@@ -167,20 +167,26 @@ def simulate_deck(your_hand, dealer_hand, choice = 'hit'):
 #run a monte carlo on each type of hand you could have
 
 
-def monte_carlo(num_sims):
-    wins = 0 
+def monte_carlo(num_sims, your_hand, dealer_hand):
     
-    
-    
-    your_hand = draw_hand(deck)
-    dealer_hand = draw_hand(deck)
-    
-    for _ in range(num_sims):
-        wins += simulate_deck(your_hand, dealer_hand)
-    
-    return wins / num_sims
+    outcome_mat = []
 
+    your_hand_pts = calculate_pt(your_hand)
+    delear_show_pt = pt_values[dealer_hand[0]]
+    
+    for choice in ['hit', 'stand']:
+        wins = 0
+        for _ in range(num_sims):
+            wins += simulate_deck(your_hand, dealer_hand, choice=choice)
+        outcome_mat.append(wins/num_sims)
+    
+    sim_result = {'hand_value': your_hand_pts, 'dealer_show_value': delear_show_pt, 'hit_win%': outcome_mat[0], 'stand_win%': outcome_mat[1]}
+    
+    return sim_result
 
-print(simulate_deck([['Spades','5'],['Hearts','2']],[['Diamonds','Q'],['Diamonds','5']]))
+your_hand = draw_hand(deck)
+dealer_hand = draw_hand(deck)
+
+print(monte_carlo(10, your_hand, dealer_hand))
 
 #print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
