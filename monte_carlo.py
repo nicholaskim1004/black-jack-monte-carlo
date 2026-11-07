@@ -1,42 +1,12 @@
 import random 
+import pandas as pd
 
 deck_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 deck_ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
-pt_values = {'2': 2, 
-             '3': 3, 
-             '4': 4, 
-             '5': 5, 
-             '6': 6, 
-             '7': 7, 
-             '8': 8, 
-             '9': 9, 
-             '10': 10,
-             'J': 10, 
-             'Q': 10, 
-             'K': 10, 
-             'A': [1, 11]}
+pt_values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,'J': 10, 'Q': 10, 'K': 10, 'A': [1, 11]}
 
 deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
-
-
-#how each round works:
-#draw 2 cards, dealer draws 2 cards (only know what 1st card is)
-#decide between the options in the list
-#calculate to see if the total points equals 21 or if you bust
-#if hit -> draw a new card and recalc.-> dealer flips card -> if total > 17 stand -> if < 16 hits-> compares points  
-#if stand -> delear flips card -> if total > 17 stands -> if < 16 stands -> compare points
-#if surrender -> you lose/give up on hand
-#if split -> play one hand 1st -> same decision tree as b/f -> after 1st hand finishes move to the 2nd hand 
-
-#points calc
-#only wrinkle is if Ace
-#lets store both hands/how it plays out if you choose 1 or 11
-
-#look into if I can use a tree/backtracking for this
-
-#stores for the starting hand, and delear show card what is 
-outcome_mat = []
 
 def calculate_pt(hand, hard_total=True):
     
@@ -53,8 +23,9 @@ def make_deck(*hands):
     used = [card for hand in hands for card in hand]
     return [card for card in deck if card not in used]
 
-def draw_hand(deck):
-    return [deck.pop(random.randrange(len(deck))) for _ in range(2)]
+def draw_hand(deck, value):
+    
+    return 
 
 def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
     # work on copies so the caller's hands are never modified
@@ -109,13 +80,31 @@ def monte_carlo(num_sims, your_hand, dealer_hand, hard_total = True):
 starting_hand_values = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]   
 dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
+#loop to go through every starting hand value and dealer up card and storing the exp value
 
+outcome_df = pd.DataFrame(columns = ['hand_value', 'dealer_show_value', 'hit_ev', 'stand_ev'])
 
+'''
+for start in starting_hand_values:
+    for up in dealer_up_card:
+        your_hand = 1
+        dealer_hand = 4
+        
+        outcome_df = pd.concat(monte_carlo(1000000, your_hand, dealer_hand))
+'''
 temp = deck.copy()
 
-your_hand = draw_hand(temp)
-dealer_hand = draw_hand(temp)
+#way to pull a card based on inputted value of hand
+target = 2
 
-print(monte_carlo(1000000, your_hand, dealer_hand))
+for card in deck:
+    suit, value = card
+    
+    value_int = pt_values[value]
 
-#print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
+    if value_int == target:
+        print(card)
+    elif value > 10:
+        other_value = target - value_int
+        if other_value == 1:
+            print()
