@@ -172,7 +172,7 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
     outcome_mat = []
 
     your_hand_pts = calculate_pt(your_hand)
-    delear_show_pt = pt_values[dealer_hand[0]]
+    delear_show_pt = pt_values[dealer_hand[0][1]]
     
     for choice in ['hit', 'stand']:
         wins = 0
