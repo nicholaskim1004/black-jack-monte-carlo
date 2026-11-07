@@ -101,12 +101,15 @@ def monte_carlo(num_sims, your_hand, dealer_hand):
         'hit_ev': results['hit'],
         'stand_ev': results['stand'],
     }
+    
+starting_hand_values = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]   
+dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 temp = deck.copy()
 
 your_hand = draw_hand(temp)
 dealer_hand = draw_hand(temp)
 
-print(monte_carlo(100000, your_hand, dealer_hand))
+print(monte_carlo(1000000, your_hand, dealer_hand))
 
 #print(calculate_pt([['Spades','A'],['Diamonds','Q']]))
