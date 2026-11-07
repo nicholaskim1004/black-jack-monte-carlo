@@ -97,6 +97,9 @@ temp = deck.copy()
 #way to pull a card based on inputted value of hand
 target = 2
 
+print(['A' if card[1] == 'A' else pt_values[card[1]] for card in deck ])
+
+'''
 for card in deck:
     suit, value = card
     
@@ -108,3 +111,4 @@ for card in deck:
         other_value = target - value_int
         if other_value == 1:
             print()
+'''
