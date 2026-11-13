@@ -40,10 +40,10 @@ def draw_hand(deck, value):
             
             return [ran_10_card, ran_other_card]
         else:
-            other_card_val = range(1,10)
+            other_card_val = range(1,11)
             
             for o in other_card_val:
-                other_val = abs(value - o)
+                other_val = value - o
                 
                 if other_val in other_card_val:
             
