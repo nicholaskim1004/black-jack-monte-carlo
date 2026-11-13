@@ -27,32 +27,24 @@ def make_deck(*hands):
 def draw_hand(deck, value):
     card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
 
-    if value > 10:
-        other_val = value - 10
-        
-        fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-        ran_other_card = fil.sample(n=1)['card'].item()
-        
-        fil = card_values_df[card_values_df['value_int'] == 10].reset_index()
-        ran_10_card = fil.sample(n=1)['card'].item()
-        
-        return [ran_10_card, ran_other_card]
-    else:
-        other_card_val = range(2,10)
-        
-        for o in other_card_val:
-            other_val = value - o
+    
+    other_card_val = range(2,11)
+    
+    for o in other_card_val:
+        other_val = value - o
+        print(o, other_val)
+        if other_val in other_card_val:
             
-            if other_val in other_card_val:
-                
-                fil = card_values_df[card_values_df['value_int'] == o].reset_index()
-                rand_card = fil.sample(n=1)['card'].item()
+            fil = card_values_df[card_values_df['value_int'] == o].reset_index()
+            print(fil)
+            rand_card = fil.sample(n=1)['card'].item()
 
-                fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-                rand_card_o = fil.sample(n=1)['card'].item()
-            
-            return [rand_card, rand_card_o]
-            
+            fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
+            print(fil)
+            rand_card_o = fil.sample(n=1)['card'].item()
+        
+        return [rand_card, rand_card_o]
+        
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
     
