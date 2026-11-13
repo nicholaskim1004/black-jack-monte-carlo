@@ -32,15 +32,13 @@ def draw_hand(deck, value):
     
     for o in other_card_val:
         other_val = value - o
-        print(o, other_val)
+        
         if other_val in other_card_val:
             
             fil = card_values_df[card_values_df['value_int'] == o].reset_index()
-            print(fil)
             rand_card = fil.sample(n=1)['card'].item()
 
             fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-            print(fil)
             rand_card_o = fil.sample(n=1)['card'].item()
         
         return [rand_card, rand_card_o]
