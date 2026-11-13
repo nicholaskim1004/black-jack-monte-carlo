@@ -58,10 +58,10 @@ def draw_hand(deck, value):
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
     
-    fil_up = [card for card in deck if card[1]==str(up)]
+    fil_up = [card for card in deck if card == str(up)]
     rand_up = random.choice(fil_up)
     
-    other = [card for card in deck if card[1]!=str(up)]
+    other = [card for card in deck if card != rand_up]
     ran_other = random.choice(other)
     
     return [rand_up, ran_other]
