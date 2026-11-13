@@ -126,7 +126,7 @@ rows = []
 for start in starting_hand_values:
     for up in dealer_up_card:
         your_hand = draw_hand(deck,start)
-        dealer_hand = draw_hand(deck,up)
+        dealer_hand = draw_dealer(deck,up)
         
         print('starting monte carlo for following hands')
         print(f'your: {your_hand}  delear: {dealer_hand}')
