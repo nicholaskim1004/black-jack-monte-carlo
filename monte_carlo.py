@@ -47,7 +47,7 @@ def draw_hand(deck, value):
                 fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
             rand_card_o = fil.sample(n=1)['card'].item()
         
-        return [rand_card, rand_card_o]
+            return [rand_card, rand_card_o]
         
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
