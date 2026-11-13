@@ -58,9 +58,9 @@ def draw_hand(deck, value):
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
     
-    fil_up = [card for card in deck if card == str(up)]
+    fil_up = [card for card in deck if card[1] == str(up)]
     rand_up = random.choice(fil_up)
-    
+
     other = [card for card in deck if card != rand_up]
     ran_other = random.choice(other)
     
@@ -121,20 +121,17 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-outcome_df = pd.DataFrame(columns = ['hand_value', 'dealer_show_value', 'hit_ev', 'stand_ev'])
+rows = []
 
-print(draw_dealer(deck, 2))
-
-
-'''
 for start in starting_hand_values:
     for up in dealer_up_card:
         your_hand = draw_hand(deck,start)
         dealer_hand = draw_hand(deck,up)
         
-        print(your_hand)
-        print(dealer_hand)
-        
-        #outcome_df = pd.concat([outcome_df,monte_carlo(1000000, your_hand, dealer_hand)],ignore_index=True)
+        print('starting monte carlo for following hands')
+        print(f'your: {your_hand}  delear: {dealer_hand}')
+        rows.append(monte_carlo(1000000, your_hand, dealer_hand))
+        print('storing result')
 
-'''
+outcome_df = pd.DataFrame(rows)
+outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
