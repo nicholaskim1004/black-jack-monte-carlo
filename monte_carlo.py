@@ -32,13 +32,19 @@ def draw_hand(deck, value):
     
     for o in other_card_val:
         other_val = value - o
-        
+        print(o, other_val)
         if other_val in other_card_val:
             
-            fil = card_values_df[card_values_df['value_int'] == o].reset_index()
+            if o == 11:
+                fil = card_values_df[card_values_df['value_int'] == 'A'].reset_index()
+            else:
+                fil = card_values_df[card_values_df['value_int'] == o].reset_index()
             rand_card = fil.sample(n=1)['card'].item()
 
-            fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
+            if other_val == 11:
+                fil = card_values_df[card_values_df['value_int'] == 'A'].reset_index()
+            else:
+                fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
             rand_card_o = fil.sample(n=1)['card'].item()
         
         return [rand_card, rand_card_o]
@@ -113,7 +119,7 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-print(draw_hand(deck, 11))
+print(draw_hand(deck, 13))
 
 rows = []
 '''
