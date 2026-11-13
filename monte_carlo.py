@@ -122,8 +122,6 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-print(draw_hand(deck, 4))
-
 rows = []
 
 for start in starting_hand_values:
