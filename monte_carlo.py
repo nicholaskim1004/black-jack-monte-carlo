@@ -104,7 +104,7 @@ def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
 def monte_carlo(num_sims, your_hand, dealer_up, hard_total = True):
     results = {}
     
-    dealer_hand = draw_hand(deck, dealer_up)
+    dealer_hand = draw_dealer(deck, dealer_up)
     
     for choice in ['hit', 'stand']:
         total = sum(simulate_deck(your_hand, dealer_hand, choice, hard_total) for _ in range(num_sims))
