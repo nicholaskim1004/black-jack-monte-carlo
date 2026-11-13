@@ -101,9 +101,10 @@ def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
     else:
         return -1
 
-def monte_carlo(num_sims, your_hand, dealer_up, hard_total = True):
+def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
     results = {}
     
+    your_hand = draw_hand(deck, your_hand_value)
     dealer_hand = draw_dealer(deck, dealer_up)
     
     for choice in ['hit', 'stand']:
@@ -111,8 +112,8 @@ def monte_carlo(num_sims, your_hand, dealer_up, hard_total = True):
         results[choice] = total / num_sims
 
     return {
-        'hand_value': calculate_pt(your_hand),
-        'dealer_show_value': up,
+        'hand_value': your_hand_value,
+        'dealer_show_value': dealer_up,
         'hit_ev': results['hit'],
         'stand_ev': results['stand'],
     }
@@ -126,11 +127,10 @@ rows = []
 
 for start in starting_hand_values:
     for up in dealer_up_card:
-        your_hand = draw_hand(deck,start)
-        
+    
         print('starting monte carlo for following hands')
-        print(f'your: {your_hand}  delear up: {up}')
-        rows.append(monte_carlo(1000000, your_hand, up))
+        print(f'your hand value: {start}  delear up: {up}')
+        rows.append(monte_carlo(1000000, start, up))
         print('storing result')
 
 outcome_df = pd.DataFrame(rows)
