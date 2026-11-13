@@ -26,28 +26,26 @@ def make_deck(*hands):
 #randomly draws two cards that add up to some value (the total value of your hand)
 def draw_hand(deck, value):
     card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
-
     
     other_card_val = range(2,11)
+    
+    choices = []
     
     for o in other_card_val:
         other_val = value - o
         
         if other_val in other_card_val:
             
-            if o == 11:
-                fil = card_values_df[card_values_df['value_int'] == 'A'].reset_index()
-            else:
-                fil = card_values_df[card_values_df['value_int'] == o].reset_index()
-            rand_card = fil.sample(n=1)['card'].item()
+            fil = card_values_df[card_values_df['value_int'] == o].reset_index()
+            choices_card1 = fil['card'].to_list()
 
-            if other_val == 11:
-                fil = card_values_df[card_values_df['value_int'] == 'A'].reset_index()
-            else:
-                fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-            rand_card_o = fil.sample(n=1)['card'].item()
-        
-            return [rand_card, rand_card_o]
+            fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
+            choices_card2 = fil['card'].to_list()
+
+            choices_combined = [[card1, card2] for card1 in choices_card1 for card2 in choices_card2]
+            choices.append(choices_combined)
+    
+    return choices
         
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
@@ -119,9 +117,10 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
+print(draw_hand(deck, 8))
 
 rows = []
-
+'''
 for start in starting_hand_values:
     for up in dealer_up_card:
     
@@ -132,3 +131,4 @@ for start in starting_hand_values:
 
 outcome_df = pd.DataFrame(rows)
 outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
+'''
