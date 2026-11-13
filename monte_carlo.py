@@ -23,37 +23,48 @@ def make_deck(*hands):
     used = [card for hand in hands for card in hand]
     return [card for card in deck if card not in used]
 
-#s
+#randomly draws two cards that add up to some value (the total value of your hand)
 def draw_hand(deck, value):
     card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
     card_values_df = pd.concat([card_values_df, pd.DataFrame({'card':[card for card in deck if card[1]=='A'], 'value_int': 1})])
         
-    for card in deck:
-        if value > 10:
-            other_val = value - 10
+    
+    if value > 10:
+        other_val = value - 10
+        
+        fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
+        ran_other_card = fil.sample(n=1)['card'].item()
+        
+        fil = card_values_df[card_values_df['value_int'] == 10].reset_index()
+        ran_10_card = fil.sample(n=1)['card'].item()
+        
+        return [ran_10_card, ran_other_card]
+    else:
+        other_card_val = range(1,11)
+        
+        for o in other_card_val:
+            other_val = value - o
             
-            fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-            ran_other_card = fil.sample(n=1)['card'].item()
-            
-            fil = card_values_df[card_values_df['value_int'] == 10].reset_index()
-            ran_10_card = fil.sample(n=1)['card'].item()
-            
-            return [ran_10_card, ran_other_card]
-        else:
-            other_card_val = range(1,11)
-            
-            for o in other_card_val:
-                other_val = value - o
-                
-                if other_val in other_card_val:
-            
-                    fil = card_values_df[card_values_df['value_int'] == o].reset_index()
-                    rand_card = fil.sample(n=1)['card'].item()
+            if other_val in other_card_val:
+        
+                fil = card_values_df[card_values_df['value_int'] == o].reset_index()
+                rand_card = fil.sample(n=1)['card'].item()
 
-                    fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-                    rand_card_o = fil.sample(n=1)['card'].item()
-                
-                return [rand_card, rand_card_o]
+                fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
+                rand_card_o = fil.sample(n=1)['card'].item()
+            
+            return [rand_card, rand_card_o]
+            
+#realized the logic for delear is easier
+def draw_dealer(deck, up):
+    
+    fil_up = [card for card in deck if card[1]==str(up)]
+    rand_up = random.choice(fil_up)
+    
+    other = [card for card in deck if card[1]!=str(up)]
+    ran_other = random.choice(other)
+    
+    return [rand_up, ran_other]
 
 def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
     # work on copies so the caller's hands are never modified
@@ -112,12 +123,10 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 outcome_df = pd.DataFrame(columns = ['hand_value', 'dealer_show_value', 'hit_ev', 'stand_ev'])
 
-print(draw_hand(deck, 5))
-
+print(draw_dealer(deck, 2))
 
 
 '''
-
 for start in starting_hand_values:
     for up in dealer_up_card:
         your_hand = draw_hand(deck,start)
@@ -127,6 +136,5 @@ for start in starting_hand_values:
         print(dealer_hand)
         
         #outcome_df = pd.concat([outcome_df,monte_carlo(1000000, your_hand, dealer_hand)],ignore_index=True)
-'''
-#print(outcome_df)
 
+'''
