@@ -32,7 +32,7 @@ def draw_hand(deck, value):
     
     for o in other_card_val:
         other_val = value - o
-        print(o, other_val)
+        
         if other_val in other_card_val:
             
             if o == 11:
@@ -119,10 +119,9 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-print(draw_hand(deck, 13))
 
 rows = []
-'''
+
 for start in starting_hand_values:
     for up in dealer_up_card:
     
@@ -133,4 +132,3 @@ for start in starting_hand_values:
 
 outcome_df = pd.DataFrame(rows)
 outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
-'''
