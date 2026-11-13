@@ -26,9 +26,7 @@ def make_deck(*hands):
 #randomly draws two cards that add up to some value (the total value of your hand)
 def draw_hand(deck, value):
     card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
-    card_values_df = pd.concat([card_values_df, pd.DataFrame({'card':[card for card in deck if card[1]=='A'], 'value_int': 1})])
-        
-    
+
     if value > 10:
         other_val = value - 10
         
@@ -116,7 +114,7 @@ def monte_carlo(num_sims, your_hand, dealer_hand, hard_total = True):
         'stand_ev': results['stand'],
     }
     
-starting_hand_values = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]   
+starting_hand_values = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]   
 dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
