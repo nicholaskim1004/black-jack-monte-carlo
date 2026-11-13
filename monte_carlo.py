@@ -45,12 +45,11 @@ def draw_hand(deck, value):
             for o in other_card_val:
                 other_val = value - o
                 
-                print(other_val)
                 if other_val in other_card_val:
             
                     fil = card_values_df[card_values_df['value_int'] == o].reset_index()
                     rand_card = fil.sample(n=1)['card'].item()
-                    print(fil)
+
                     fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
                     rand_card_o = fil.sample(n=1)['card'].item()
                 
@@ -113,9 +112,9 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 outcome_df = pd.DataFrame(columns = ['hand_value', 'dealer_show_value', 'hit_ev', 'stand_ev'])
 
-#print(draw_hand(deck, 5))
+print(draw_hand(deck, 5))
 
-print([card for card in deck if card[1]=='A'])
+
 
 '''
 
