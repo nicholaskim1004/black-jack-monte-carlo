@@ -27,18 +27,6 @@ def make_deck(*hands):
 def draw_hand(deck, value):
     card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
     card_values_df = pd.concat([card_values_df, pd.DataFrame({'card':[card for card in deck], 'value_int': 1})])
-    
-    value_sorted = card_values_df['value_int'].unique().sort(descending=False)
-    
-    l, r = 0, len(deck)-1
-    
-    while l<r:
-        mid = (l+r)//2
-        
-        pt = value_sorted[l] + value_sorted[mid]
-
-        if pt > value:
-            r = mid-1
         
     for card in deck:
         if value > 10:
@@ -52,11 +40,20 @@ def draw_hand(deck, value):
             
             return [ran_10_card, ran_other_card]
         else:
+            other_card_val = range(1,10)
             
+            for o in other_card_val:
+                other_val = abs(value - o)
+                
+                if other_val in other_card_val:
             
-            fil = card_values_df[card_values_df['value_int'] == value].reset_index()
-
-            return fil.sample(n=1)['card'].item()
+                    fil = card_values_df[card_values_df['value_int'] == value].reset_index()
+                    rand_card = fil.sample(n=1)['card'].item()
+                    
+                    fil = card_values_df[card_values_df['value_int'] == o].reset_index()
+                    rand_card_o = fil.sample(n=1)['card'].item()
+                
+                return [rand_card, rand_card_o]
 
 def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
     # work on copies so the caller's hands are never modified
