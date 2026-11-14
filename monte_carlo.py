@@ -60,11 +60,12 @@ def draw_dealer(deck, up):
     
     return [rand_up, ran_other]
 
-def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
-    # work on copies so the caller's hands are never modified
-    your_hand = your_hand.copy()
-    dealer_hand = dealer_hand.copy()
 
+def simulate_deck(your_hand_value, dealer_up, choice='hit', hard_total=True):
+    
+    your_hand = draw_hand(deck, your_hand_value)
+    dealer_hand = draw_dealer(deck, dealer_up)
+    
     fil_deck = make_deck(your_hand, dealer_hand)
     random.shuffle(fil_deck)
 
@@ -80,16 +81,18 @@ def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
         return -1
 
     if choice == 'hit':
-        your_hand.append(fil_deck.pop())
+        new_card = fil_deck.pop()
+        
+        your_hand.append(new_card)
         your_val = calculate_pt(your_hand)
+        
         if your_val > 21:
             return -1
 
-    # dealer draws until 17+
     while calculate_pt(dealer_hand) < 17:
         dealer_hand.append(fil_deck.pop())
     dealer_val = calculate_pt(dealer_hand)
-
+        
     if dealer_val > 21 or your_val > dealer_val:
         return 1
     elif your_val == dealer_val:
@@ -100,11 +103,9 @@ def simulate_deck(your_hand, dealer_hand, choice='hit', hard_total=True):
 def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
     results = {}
     
-    your_hand = draw_hand(deck, your_hand_value)
-    dealer_hand = draw_dealer(deck, dealer_up)
-    
     for choice in ['hit', 'stand']:
-        total = sum(simulate_deck(your_hand, dealer_hand, choice, hard_total) for _ in range(num_sims))
+        
+        total = sum(simulate_deck(your_hand_value, dealer_up, choice, hard_total) for _ in range(num_sims))
         results[choice] = total / num_sims
 
     return {
