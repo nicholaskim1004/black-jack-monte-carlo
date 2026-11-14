@@ -42,10 +42,12 @@ def draw_hand(deck, value):
             fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
             choices_card2 = fil['card'].to_list()
 
-            choices_combined = [[card1, card2] for card1 in choices_card1 for card2 in choices_card2]
-            choices.append(choices_combined)
+            for card1 in choices_card1:
+                for card2 in choices_card2:
+                    choices.append([card1, card2])
+                    
     
-    return choices
+    return random.choice(choices)
         
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
@@ -117,7 +119,8 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-print(draw_hand(deck, 8))
+t = draw_hand(deck, 8)
+print(t)
 
 rows = []
 '''
