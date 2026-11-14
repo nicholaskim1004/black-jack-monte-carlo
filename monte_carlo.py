@@ -119,19 +119,24 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
-t = draw_hand(deck, 8)
-print(t)
 
 rows = []
-'''
+
 for start in starting_hand_values:
     for up in dealer_up_card:
     
         print('starting monte carlo for following hands')
         print(f'your hand value: {start}  delear up: {up}')
-        rows.append(monte_carlo(1000000, start, up))
+        
+        sim = monte_carlo(1000000, start, up)
+        
+        if sim['hit_ev']>sim['stand_ev']:
+            print('winning strat hit')
+        else:
+            print('winning strate stand')
+            
         print('storing result')
+        rows.append(sim)
 
 outcome_df = pd.DataFrame(rows)
 outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
-'''
