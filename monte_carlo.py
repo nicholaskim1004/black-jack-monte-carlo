@@ -120,6 +120,7 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
+
 rows = []
 
 for start in starting_hand_values:
@@ -128,7 +129,7 @@ for start in starting_hand_values:
         print('starting monte carlo for following hands')
         print(f'your hand value: {start}  delear up: {up}')
         
-        sim = monte_carlo(1000000, start, up)
+        sim = monte_carlo(10000, start, up)
         
         if sim['hit_ev']>sim['stand_ev']:
             print('winning strat hit')
