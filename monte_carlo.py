@@ -1,5 +1,6 @@
 import random 
 import pandas as pd
+import numpy as np
 
 deck_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 deck_ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -60,8 +61,16 @@ def draw_dealer(deck, up):
     
     return [rand_up, ran_other]
 
+def compare_hands(your_hand, dealer_hand):
+    if your_hand == dealer_hand:
+        return 0
+    elif (your_hand > dealer_hand and your_hand <= 21) or dealer_hand > 21:
+        return 1
+    else:
+        return -1
 
-def simulate_deck(your_hand_value, dealer_up, choice='hit', hard_total=True):
+def simulate_deck(your_hand_value, dealer_up, hard_total=True):
+    #return outcome under hit and stand under same situation
     
     your_hand = draw_hand(deck, your_hand_value)
     dealer_hand = draw_dealer(deck, dealer_up)
@@ -74,45 +83,53 @@ def simulate_deck(your_hand_value, dealer_up, choice='hit', hard_total=True):
 
     # blackjack check
     if your_val == 21 and dealer_val == 21:
-        return 0
+        return 0, 0
     if your_val == 21:
-        return 1
+        return 1, 1
     if dealer_val == 21:
-        return -1
+        return -1, -1
 
-    if choice == 'hit':
-        new_card = fil_deck.pop()
-        
-        your_hand.append(new_card)
-        your_val = calculate_pt(your_hand)
-        
-        if your_val > 21:
-            return -1
+    stand_outcome = compare_hands(your_val, dealer_val)
+    
+    hit_outcome = 0
+    
+    new_card = fil_deck.pop()
+    
+    your_hand.append(new_card)
+    your_val = calculate_pt(your_hand)
+    
+    if your_val > 21:
+        hit_outcome = -1
 
     while calculate_pt(dealer_hand) < 17:
         dealer_hand.append(fil_deck.pop())
     dealer_val = calculate_pt(dealer_hand)
         
-    if dealer_val > 21 or your_val > dealer_val:
-        return 1
-    elif your_val == dealer_val:
-        return 0
-    else:
-        return -1
+    hit_outcome = compare_hands(your_val, dealer_val)
+    
+    return hit_outcome, stand_outcome
 
 def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
-    results = {}
+
+    outcomes = np.array([simulate_deck(your_hand_value, dealer_up, hard_total) for _ in range(num_sims)])
+    hits, stands = outcomes[:, 0], outcomes[:, 1]
     
-    for choice in ['hit', 'stand']:
-        
-        total = sum(simulate_deck(your_hand_value, dealer_up, choice, hard_total) for _ in range(num_sims))
-        results[choice] = total / num_sims
+    diff = hits - stands
+    
+    diff_mean = diff.mean()
+    diff_se = diff.std(ddof=1) / np.sqrt(num_sims)
 
     return {
         'hand_value': your_hand_value,
         'dealer_show_value': dealer_up,
-        'hit_ev': results['hit'],
-        'stand_ev': results['stand'],
+        'hit_ev': hits.mean(),
+        'stand_ev': stands.mean(),
+        'hit_minus_stand': diff_mean,
+        'diff_se': diff_se,
+        'hit_win': (hits == 1).mean(), 'hit_tie': (hits == 0).mean(), 'hit_loss': (hits == -1).mean(),
+        'stand_win': (stands == 1).mean(), 'stand_tie': (stands == 0).mean(), 'stand_loss': (stands == -1).mean(),
+        'best_action': 'hit' if hits.mean() > stands.mean() else 'stand',
+        'significant': np.abs(diff_mean) > 2 * diff_se
     }
     
 starting_hand_values = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]   
@@ -120,7 +137,9 @@ dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
 
+print(monte_carlo(1000, 21, 10))
 
+'''
 rows = []
 
 for start in starting_hand_values:
@@ -141,3 +160,4 @@ for start in starting_hand_values:
 
 outcome_df = pd.DataFrame(rows)
 outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
+'''
