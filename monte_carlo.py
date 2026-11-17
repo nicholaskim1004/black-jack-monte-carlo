@@ -61,18 +61,14 @@ def play_dealer(dealer, deck):
     while calculate_pt(hand) < 17:
         hand.append(deck.pop())
     
-    return calculate_pt(dealer)
+    return calculate_pt(hand)
 
 def simulate_deck(your_hand_value, dealer_up, hard_total=True):
     #return outcome under hit and stand under same situation
     
-    if your_hand_value == 21:
-        your_hand = draw_hand(your_hand_value, False)
-    else:
-        your_hand = draw_hand(your_hand_value)
+    your_hand = draw_hand(your_hand_value)
 
-    dealer_hand = draw_dealer(deck, dealer_up)
-    
+    dealer_hand = draw_dealer(make_deck(your_hand), dealer_up)    
     fil_deck = make_deck(your_hand, dealer_hand)
     random.shuffle(fil_deck)
 
@@ -95,7 +91,7 @@ def simulate_deck(your_hand_value, dealer_up, hard_total=True):
     
     hit_hand = your_hand + [hit_deck.pop()]
     
-    while calculate_pt(hit_deck) < 17:
+    while calculate_pt(hit_hand) < 17:
         hit_hand.append(hit_deck.pop())
     
     your_val = calculate_pt(hit_hand)
@@ -130,7 +126,7 @@ def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
         'significant': np.abs(diff_mean) > 2 * diff_se
     }
     
-starting_hand_values = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]   
+starting_hand_values = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]   
 dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
 #loop to go through every starting hand value and dealer up card and storing the exp value
@@ -154,4 +150,4 @@ for start in starting_hand_values:
         rows.append(sim)
 
 outcome_df = pd.DataFrame(rows)
-outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result.csv', index=False)
+outcome_df.to_csv('/Users/nicholaskim/Documents/Repositories/black jack monte carlo/result_hardtotals.csv', index=False)
