@@ -2,12 +2,16 @@ import random
 import pandas as pd
 import numpy as np
 
+from itertools import combinations
+
 deck_suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 deck_ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 pt_values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,'J': 10, 'Q': 10, 'K': 10, 'A': [1, 11]}
 
 deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
+
+all_pairs = list(combinations(deck, 2))
 
 def calculate_pt(hand, hard_total=True):
     
@@ -24,50 +28,40 @@ def make_deck(*hands):
     used = [card for hand in hands for card in hand]
     return [card for card in deck if card not in used]
 
+
+def card_val(card):
+    return 11 if card[1] == 'A' else pt_values[card[1]]
+
 #randomly draws two cards that add up to some value (the total value of your hand)
-def draw_hand(deck, value):
-    card_values_df = pd.DataFrame({'card':[card for card in deck],'value_int':[11 if card[1] == 'A' else pt_values[card[1]] for card in deck ]})
-
-    other_card_val = range(2,12)
-    
-    choices = []
-    
-    for o in other_card_val:
-        other_val = value - o
-
-        if other_val in other_card_val:
-            
-            fil = card_values_df[card_values_df['value_int'] == o].reset_index()
-            choices_card1 = fil['card'].to_list()
-
-            fil = card_values_df[card_values_df['value_int'] == other_val].reset_index()
-            choices_card2 = fil['card'].to_list()
-
-            for card1 in choices_card1:
-                for card2 in choices_card2:
-                    choices.append([card1, card2])
-                    
-    
+def draw_hand(value, hard_total=True):
+    # hard: no ace in hand; soft: contains an ace
+    choices = [list(p) for p in all_pairs
+               if calculate_pt(list(p)) == value
+               and any(r == 'A' for _, r in p) == (not hard_total)]
     return random.choice(choices)
         
 #realized the logic for delear is easier
 def draw_dealer(deck, up):
-    
-    fil_up = [card for card in deck if card[1] == str(up)]
-    rand_up = random.choice(fil_up)
+    up_val = 11 if up == 'A' else up
+    rand_up = random.choice([c for c in deck if card_val(c) == up_val])
+    hole = random.choice([c for c in deck if c != rand_up])
+    return [rand_up, hole]
 
-    other = [card for card in deck if card != rand_up]
-    ran_other = random.choice(other)
-    
-    return [rand_up, ran_other]
-
-def compare_hands(your_hand, dealer_hand):
-    if your_hand == dealer_hand:
-        return 0
-    elif (your_hand > dealer_hand and your_hand <= 21) or dealer_hand > 21:
-        return 1
-    else:
+def compare_hands(you, dealer):
+    if you > 21:
         return -1
+    if dealer > 21 or you > dealer:
+        return 1
+    return 0 if you == dealer else -1
+
+def play_dealer(dealer, deck):
+    hand = list(dealer)
+    
+    #if hand value is < 17 then dealer forced to hit
+    while calculate_pt(hand) < 17:
+        hand.append(deck.pop())
+    
+    return calculate_pt(dealer)
 
 def simulate_deck(your_hand_value, dealer_up, hard_total=True):
     #return outcome under hit and stand under same situation
@@ -89,24 +83,24 @@ def simulate_deck(your_hand_value, dealer_up, hard_total=True):
     if dealer_val == 21:
         return -1, -1
 
-    stand_outcome = compare_hands(your_val, dealer_val)
+    stand_outcome = compare_hands(your_val, play_dealer(dealer_hand, fil_deck.copy()))
     
     hit_outcome = 0
     
-    new_card = fil_deck.pop()
+    hit_deck = fil_deck.copy()
     
-    your_hand.append(new_card)
-    your_val = calculate_pt(your_hand)
+    hit_hand = your_hand + [hit_deck.pop()]
+    
+    while calculate_pt(hit_deck) < 17:
+        hit_hand.append(hit_deck.pop())
+    
+    your_val = calculate_pt(hit_hand)
     
     if your_val > 21:
         hit_outcome = -1
-
-    while calculate_pt(dealer_hand) < 17:
-        dealer_hand.append(fil_deck.pop())
-    dealer_val = calculate_pt(dealer_hand)
+    else:
+        hit_outcome = compare_hands(your_val, play_dealer(dealer_hand, hit_deck))
         
-    hit_outcome = compare_hands(your_val, dealer_val)
-    
     return hit_outcome, stand_outcome
 
 def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
