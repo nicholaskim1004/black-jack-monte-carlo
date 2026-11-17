@@ -13,6 +13,8 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 all_pairs = list(combinations(deck, 2))
 
+STOP_THRESHOLDS = [0, 12, 13, 14, 15, 16, 17]
+
 def calculate_pt(hand, hard_total=True):
     
     if hard_total:
@@ -63,7 +65,7 @@ def play_dealer(dealer, deck):
     
     return calculate_pt(hand)
 
-def simulate_deck(your_hand_value, dealer_up, hard_total=True):
+def simulate_deck(your_hand_value, dealer_up, hard_total=True, thresholds = STOP_THRESHOLDS):
     #return outcome under hit and stand under same situation
     
     your_hand = draw_hand(your_hand_value)
@@ -84,48 +86,53 @@ def simulate_deck(your_hand_value, dealer_up, hard_total=True):
         return -1, -1
 
     stand_outcome = compare_hands(your_val, play_dealer(dealer_hand, fil_deck.copy()))
-    
-    hit_outcome = 0
-    
-    hit_deck = fil_deck.copy()
-    
-    hit_hand = your_hand + [hit_deck.pop()]
-    
-    while calculate_pt(hit_hand) < 17:
-        hit_hand.append(hit_deck.pop())
-    
-    your_val = calculate_pt(hit_hand)
-    
-    if your_val > 21:
-        hit_outcome = -1
-    else:
-        hit_outcome = compare_hands(your_val, play_dealer(dealer_hand, hit_deck))
-        
-    return hit_outcome, stand_outcome
 
-def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True):
+    hit_outcomes = []
+    for T in thresholds:
+        deck_copy = fil_deck.copy()
+        hand = your_hand + [deck_copy.pop()]          # first hit is forced
+        while calculate_pt(hand) < T:                 # stopping condition
+            hand.append(deck_copy.pop())
+        val = calculate_pt(hand)
+        if val > 21:
+            hit_outcomes.append(-1)
+        else:
+            hit_outcomes.append(compare_hands(val, play_dealer(dealer_hand, deck_copy)))
 
-    outcomes = np.array([simulate_deck(your_hand_value, dealer_up, hard_total) for _ in range(num_sims)])
-    hits, stands = outcomes[:, 0], outcomes[:, 1]
-    
-    diff = hits - stands
-    
+    return stand_outcome, hit_outcomes
+
+
+def monte_carlo(num_sims, your_hand_value, dealer_up, hard_total = True, thresholds = STOP_THRESHOLDS):
+
+    results = [simulate_deck(your_hand_value, dealer_up, thresholds) for _ in range(num_sims)]
+    stands = np.array([r[0] for r in results])
+    hits = np.array([r[1] for r in results])          # shape (num_sims, len(thresholds))
+
+    hit_evs = hits.mean(axis=0)
+    best_i = int(np.argmax(hit_evs))                  # data picks the stopping rule
+    best_hits = hits[:, best_i]
+
+    diff = best_hits - stands
     diff_mean = diff.mean()
     diff_se = diff.std(ddof=1) / np.sqrt(num_sims)
 
-    return {
+    row = {
         'hand_value': your_hand_value,
         'dealer_show_value': dealer_up,
-        'hit_ev': hits.mean(),
         'stand_ev': stands.mean(),
+        'best_hit_ev': hit_evs[best_i],
+        'best_stop_T': thresholds[best_i],
         'hit_minus_stand': diff_mean,
         'diff_se': diff_se,
-        'hit_win': (hits == 1).mean(), 'hit_tie': (hits == 0).mean(), 'hit_loss': (hits == -1).mean(),
+        'best_action': 'hit' if hit_evs[best_i] > stands.mean() else 'stand',
+        'significant': np.abs(diff_mean) > 2 * diff_se,
         'stand_win': (stands == 1).mean(), 'stand_tie': (stands == 0).mean(), 'stand_loss': (stands == -1).mean(),
-        'best_action': 'hit' if hits.mean() > stands.mean() else 'stand',
-        'significant': np.abs(diff_mean) > 2 * diff_se
+        'hit_win': (best_hits == 1).mean(), 'hit_tie': (best_hits == 0).mean(), 'hit_loss': (best_hits == -1).mean(),
     }
-    
+    for T, ev in zip(thresholds, hit_evs):
+        row[f'hit_T{T}_ev'] = ev
+    return row
+
 starting_hand_values = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]   
 dealer_up_card = [2,3,4,5,6,7,8,9,10,'A']
 
