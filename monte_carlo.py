@@ -13,7 +13,7 @@ deck = [[suit, rank] for suit in deck_suits for rank in deck_ranks]
 
 all_pairs = list(combinations(deck, 2))
 
-STOP_THRESHOLDS = [0, 12, 13, 14, 15, 16, 17]
+STOP_THRESHOLDS = [12, 13, 14, 15, 16, 17]
 
 def calculate_pt(hand, hard_total=True):
     
@@ -79,11 +79,11 @@ def simulate_deck(your_hand_value, dealer_up, hard_total=True, thresholds = STOP
 
     # blackjack check
     if your_val == 21 and dealer_val == 21:
-        return 0, 0
+        return 0, [0]*len(thresholds)
     if your_val == 21:
-        return 1, 1
+        return 1, [1]*len(thresholds)
     if dealer_val == 21:
-        return -1, -1
+        return -1, [-1]*len(thresholds)
 
     stand_outcome = compare_hands(your_val, play_dealer(dealer_hand, fil_deck.copy()))
 
@@ -148,7 +148,7 @@ for start in starting_hand_values:
         
         sim = monte_carlo(10000, start, up)
         
-        if sim['hit_ev']>sim['stand_ev']:
+        if sim['best_hit_ev']>sim['stand_ev']:
             print('winning strat hit')
         else:
             print('winning strate stand')
