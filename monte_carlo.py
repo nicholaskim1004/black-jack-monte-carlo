@@ -66,7 +66,11 @@ def play_dealer(dealer, deck):
 def simulate_deck(your_hand_value, dealer_up, hard_total=True):
     #return outcome under hit and stand under same situation
     
-    your_hand = draw_hand(your_hand_value)
+    if your_hand_value == 21:
+        your_hand = draw_hand(your_hand_value, False)
+    else:
+        your_hand = draw_hand(your_hand_value)
+
     dealer_hand = draw_dealer(deck, dealer_up)
     
     fil_deck = make_deck(your_hand, dealer_hand)
